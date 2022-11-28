@@ -27,3 +27,14 @@
     - 관리자 페이지
       - 공지사항 관리, 1:1 문의 답변, 검수기준 수정 등을 할 수 있습니다.
 - 단순한 쇼핑몰의 결제 환경이 아닌 입찰을 통한 거래 진행 방법을 구현하였습니다. 
+
+---
+
+<img width="821" alt="ppt_2" src="https://user-images.githubusercontent.com/84915765/204211464-a5d4322a-b447-4dfb-ad95-9f67957b48e4.png" style="align: "center";">
+<KREAMY 소개>
+
+![샵메인](https://user-images.githubusercontent.com/84915765/204211690-2a381796-c861-461e-b5b0-b13234a82964.png)
+<KREAMY 전체상품보기>
+
+![자주묻는질문상세](https://user-images.githubusercontent.com/84915765/204211823-95c698bd-c9d9-4e45-9249-e498991c557a.png)
+<KREAMY 고객센터-자주 묻는 질문 상세>
