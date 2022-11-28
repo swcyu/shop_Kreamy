@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kreamy.bidSellMapper">
+
+<select id="getSellLists" parameterType="int" resultType="com.mvc.dto.BidSellDTO">
+	select prodNum productNum, bidSellNum, imageName, a.engProduct, bidSellValidDate, bidSellWishPrice, userSize, bidSellState from prodinfo a, (select * from prodimage where imagetype='list') b,
+	(select bidSellNum, productNum,bidSellDate, bidSellWishPrice,to_char(bidSellValidDate,'yy/mm/dd') bidSellValidDate, (case when bidSellValidDate >= sysdate then '입찰 중' else '기한만료' end) bidSellState
+	from bidSellInfo where userNum=#{userNum}) c where a.prodNum=c.productNum and a.engProduct=b.engProduct order by bidSellValidDate desc
+</select>
+
+<select id="getFilterSellLists" parameterType="map" resultType="com.mvc.dto.BidSellDTO">
+	select prodNum productNum, bidSellNum, imageName, a.engProduct, bidSellValidDate, bidSellWishPrice, userSize, bidSellState from prodinfo a, (select * from prodimage where imagetype='list') b,
+	(select bidSellNum, productNum, bidSellWishPrice,to_char(bidSellValidDate,'yy/mm/dd') bidSellValidDate, (case when bidSellValidDate >= sysdate then '입찰 중' else '기한만료' end) bidSellState
+	from bidSellInfo where userNum=#{userNum}
+<![CDATA[
+	and bidSellDate>=#{startDate} and bidSellDate-1<=#{endDate}
+]]>	
+	) c where a.prodNum=c.productNum and a.engProduct=b.engProduct
+	<if test="state=='bid'">and bidSellState='입찰 중'</if>
+	<if test="state=='end'">and bidSellState='기한만료'</if>
+	<if test="sort=='priceAsc'">order by bidSellWishPrice asc</if>
+	<if test="sort=='priceDesc'">order by bidSellWishPrice desc</if>
+	<if test="sort=='validAsc'">order by bidSellValidDate asc</if>
+	<if test="sort=='validDesc'">order by bidSellValidDate desc</if>
+</select>
+
+<select id="getLists" parameterType="int" resultType="com.mvc.dto.BidSellDTO">
+	select bidSellNum, userNum, productNum, bidSellWishPrice, bidSellDate, bidSellValidDate, addrNum from bidSellInfo where userNum=#{userNum}
+</select>
+
+<select id="getOneData" parameterType="int" resultType="com.mvc.dto.BidSellDTO">
+	select prodNum productNum, a.bidSellNum, a.userNum, a.productNum, bidSellWishPrice, bidSellDate, bidSellValidDate, bidSellState, addrNum, imageName, 
+	nvl(maxBidBuyPrice,-1) maxBidBuyPrice, nvl(minBidSellPrice,-1) minBidSellPrice, userSize, b.engProduct, condition,
+	nvl(styleNum,'-') styleNum from (select bidSellNum, userNum, productNum, bidSellWishPrice,
+	to_char(bidSellDate,'yy/mm/dd') bidSellDate,to_char(bidSellValidDate,'yy/mm/dd') bidSellValidDate,
+	(case when bidSellValidDate >= sysdate then '입찰 중' else '기한만료' end) bidSellState, addrNum from bidSellInfo where bidSellNum=#{bidSellNum}) a,
+	prodInfo b,(select * from prodImage where imagetype='list') c,
+	(select productNum ,nvl(max(bidBuyWishPrice),-1) maxBidBuyPrice from bidBuyInfo group by productNum) d,
+	(select productNum ,nvl(min(bidSellWishPrice),-1) minBidSellPrice from bidSellInfo group by productNum) e
+	where a.productNum=b.prodNum and b.engProduct=c.engProduct(+) and a.productNum=d.productNum(+) and a.productNum=e.productNum(+)
+</select>
+
+<delete id="deleteData" parameterType="int">
+	delete bidSellInfo where bidSellNum=#{bidSellNum}
+</delete>
+
+<select id="getDataCount" parameterType="String" resultType="int">
+	select count(*) from bidSellInfo where bidSellDate>=#{today}
+</select>
+</mapper>

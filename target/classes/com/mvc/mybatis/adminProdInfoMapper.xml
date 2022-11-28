@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kreamy.adminProdInfoMapper">
+
+
+<select id="maxNum" resultType="int">
+	select nvl(max(prodNum),0) from prodInfo
+</select>
+
+<insert id="insertData" parameterType="com.mvc.dto.AdminProdInfoDTO">
+	insert into prodInfo (prodNum,engProduct,korProduct,styleNum,colorway,releaseDate,retailPrice,brandName,category,condition,userSize) 
+	values (#{prodNum},#{engProduct},#{korProduct},#{styleNum},#{colorway},#{releaseDate},#{retailPrice},#{brandName},#{category},#{condition},#{userSize})
+</insert>
+
+<select id="getDataCount" parameterType="map" resultType="int">
+	select nvl(count(*),0) from (select distinct engProduct from prodinfo where LOWER(engProduct) like '%' || LOWER(#{searchValue}) || '%')
+</select>
+
+<select id="getProductCount" parameterType="String" resultType="int">
+	select nvl(count(*),0) from (select distinct engProduct from prodinfo where category=#{category})
+</select>
+
+<select id="getInspectDataCount" parameterType="map" resultType="int">
+	select nvl(count(*),0) from tradeInfo where
+<if test="searchKey=='buy'">tradeBuyState like '%' || #{searchValue} || '%'</if>
+<if test="searchKey=='total'">(tradeBuyState like '%' || #{searchValue} || '%' or tradeSellState like '%' || #{searchValue} || '%')</if>
+<if test="searchKey=='sell'">tradeSellState like '%' || #{searchValue} || '%'</if>	
+
+</select>
+
+<select id="getList" parameterType="map" resultType="com.mvc.dto.ProductDTO">
+select * from( select rownum rnum, data.* from
+(select distinct a.engProduct, a.brandName,styleNum , imageName, nvl(bidbuyCount,0) bidbuyCount,nvl(bidSellCount,0) bidSellCount,
+nvl(tradeCount,0) tradeCount, brandImage from prodinfo a, 
+(select * from prodimage  where imagetype='list') b,
+(select count(*) bidbuyCount, engProduct from bidbuyinfo a,prodinfo b where a.productNum=b.prodNum group by engProduct) c,
+(select count(*) bidSellCount, engProduct from bidsellinfo a,prodinfo b where a.productNum=b.prodNum group by engProduct) d,
+(select count(*) tradeCount, engProduct from tradeinfo a,prodinfo b where a.productNum=b.prodNum group by engProduct) e, brand f
+where a.engProduct = b.engProduct(+) and a.engProduct=c.engProduct(+) and a.engProduct=d.engProduct(+) and a.engProduct=e.engProduct(+) 
+and a.brandName=f.brandName(+) and LOWER(a.engProduct) like '%' || LOWER(#{searchValue}) || '%' order by tradeCount desc, bidBuyCount desc, bidSellCount desc) data) 
+<![CDATA[
+	where rnum >= #{start} and rnum <= #{end}
+]]>
+</select>
+
+<select id="getInspectList" parameterType="map" resultType="com.mvc.dto.InspectDTO">
+select * from( select rownum rnum, data.* from
+(select tradeNum, to_char(tradeDate,'YY/MM/DD')tradeDate,tradeBuyState, tradeSellState, b.Id buyer, c.Id seller, imageName, d.engProduct, userSize
+from tradeInfo a, userInfo b, userInfo c, prodInfo d, (select * from prodimage  where imagetype='list') e
+where a.buyUserNum=b.userNum and a.sellUserNum=c.userNum and a.productNum=d.prodNum and d.engProduct=e.engProduct and 
+<if test="searchKey=='buy'">tradeBuyState like '%' || #{searchValue} || '%'</if>
+<if test="searchKey=='total'">(tradeBuyState like '%' || #{searchValue} || '%' or tradeSellState like '%' || #{searchValue} || '%')</if>
+<if test="searchKey=='sell'">tradeSellState like '%' || #{searchValue} || '%'</if>	
+order by tradeNum desc) data) 
+<![CDATA[
+	where rnum >= #{start} and rnum <= #{end}
+]]>
+
+</select>
+
+
+
+
+<select id="getEngProductList" resultType="String">
+	select distinct engProduct from prodInfo 
+</select>
+
+
+<delete id="deleteData" parameterType="String">
+	delete prodInfo where engProduct = #{engProduct}
+</delete>
+
+
+
+</mapper>
+

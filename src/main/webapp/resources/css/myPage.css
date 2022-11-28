@@ -1,0 +1,163 @@
+@charset "UTF-8";
+*{
+	font-family: 나눔 고딕;
+}
+a{
+	text-decoration: none;
+}
+
+.content{
+	font-size: 16px;
+	letter-spacing: -.16px;
+
+}
+h2{
+	font-size: 32px;
+	letter-spacing: -1.5px;
+}
+ul{
+	margin-top: 13px;
+	padding-left: 0px;
+	margin-bottom: 8px;
+}
+
+input::placeholder{
+	color: rgba(134,134,134,.5);
+}
+
+.focusOut{
+	box-sizing: border-box; 
+	margin: 0; 
+	color: #222; 
+	outline: 0;
+    border: 0;
+    resize: none;
+    padding: 8px 0;
+    font-size: 15px; 
+    width:480px;
+	letter-spacing: -.15px;
+	line-height: 22px;
+	border-bottom: 1px solid #ebebeb;
+}
+.focusIn{
+	box-sizing: border-box; 
+	margin: 0; 
+	color: #222; 
+	outline: 0;
+    border: 0;
+    resize: none;
+    padding: 7.5px 0;
+    font-size: 15px; 
+    width:480px;
+	letter-spacing: -.15px;
+	line-height: 22px;
+	border-bottom: 2px solid #222222;
+	
+}
+.account_error{
+	box-sizing: border-box; 
+	margin: 0; 
+	color: #222; 
+	outline: 0;
+    border: 0;
+    resize: none;
+    padding: 8px 0;
+    font-size: 15px; 
+    width:480px;
+	letter-spacing: -.15px;
+	line-height: 22px;
+	border-bottom: 1px solid #f15746;
+}
+
+.account_error_on{
+	display: block;
+	position: absolute; 
+	display: block;
+	line-height: 16px;
+	font-size: 11px;
+	color: #f15746;
+	left: 0px; 
+	bottom: -1px;
+}
+.account_error_off{
+	display: none;
+	position: absolute; 
+	display: none;
+	line-height: 16px;
+	font-size: 11px;
+	color: #f15746;
+	left: 0px; 
+	bottom: -1px;
+}
+
+.account_title_black{
+	color: #222; 
+	box-sizing: border-box;
+	margin: 0; 
+	padding: 0;
+	font-size: 13px;
+	letter-spacing: -.07px; 
+	line-height: 18px;
+	font-weight: 700;
+}
+.account_title_red{
+	color: #f15746; 
+	box-sizing: border-box;
+	margin: 0; 
+	padding: 0;
+	font-size: 13px;
+	letter-spacing: -.07px; 
+	line-height: 18px;
+	font-weight: 700;
+}
+
+.save_on{
+
+    background-color: #222;
+    color: #fff;
+    cursor: pointer; 
+	padding: 0 18px;
+	width: 120px;				
+	height: 42px; 
+	line-height: 40px;
+	border-radius: 12px; 
+	font-size: 14px; 
+	letter-spacing: -.14px;
+}
+
+.save_off{
+	background-color: #ebebeb; 
+	color: #fff; 
+	padding: 0 18px;
+	width: 120px;				
+	height: 42px; 
+	line-height: 40px;
+	border-radius: 12px; 
+	font-size: 14px; 
+	letter-spacing: -.14px;
+	cursor: default;
+}
+
+.bank-list-close{
+	width: 480px; 
+	height: 240px; 
+	overflow-y: scroll; 
+	position: absolute;
+	left: 0px; top: 66px;
+	z-index: 100; 
+	background-color: #fff; 
+	border: 1px solid #ebebeb;
+	display: none
+}
+.bank-list-open{
+	width: 480px; 
+	height: 240px; 
+	overflow-y: scroll; 
+	position: absolute;
+	left: 0px; top: 66px;
+	z-index: 100; 
+	background-color: #fff; 
+	border: 1px solid #ebebeb;
+	display: block;
+	cursor: pointer;
+}

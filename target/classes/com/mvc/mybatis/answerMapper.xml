@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="answerMapper">
+
+<select id="maxNum" resultType="int">
+	select nvl(max(answerNum),0) from answer
+</select>
+
+<insert id="insertAnswerData" parameterType="com.mvc.dto.AnswerDTO">
+	insert into answer (answerNum,questionNum,answerContent)  
+	values (#{answerNum},#{questionNum},#{answerContent})
+</insert>
+
+<select id="getReadAnswerData" parameterType="int" resultType="com.mvc.dto.AnswerDTO">
+	select answerNum,answerContent 
+	from answer where questionNum=#{questionNum}
+</select>
+
+<delete id="deleteAnswerData" parameterType="int">
+	delete answer where questionNum=#{questionNum}
+</delete>
+
+<update id="updateAnswerData" parameterType="com.mvc.dto.AnswerDTO">
+	update answer set answerContent=#{answerContent} 
+	where questionNum=#{questionNum}
+</update>
+
+</mapper>

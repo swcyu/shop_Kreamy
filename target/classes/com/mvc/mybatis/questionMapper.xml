@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="questionMapper">
+
+<select id="maxNum" resultType="int">
+	select nvl(max(questionNum),0) from question
+</select>
+
+<insert id="insertData" parameterType="com.mvc.dto.QuestionDTO">
+	insert into question (questionNum,userNum,questionType1,questionType2,tradeNum,brandName,questionSubject,questionContent,questionImage1,questionImage2,questionImage3,questionCreated,buyRoute,buyRouteDetail,buyReason,sellPrice,sellPriceDetail,questionStatus) 
+	values (#{questionNum},#{userNum},#{questionType1},#{questionType2, jdbcType=VARCHAR},#{tradeNum, jdbcType=INTEGER},#{brandName, jdbcType=VARCHAR},#{questionSubject},#{questionContent},#{questionImage1, jdbcType=VARCHAR},#{questionImage2, jdbcType=VARCHAR},#{questionImage3, jdbcType=VARCHAR},sysdate,#{buyRoute, jdbcType=VARCHAR},#{buyRouteDetail, jdbcType=VARCHAR},#{buyReason, jdbcType=VARCHAR},#{sellPrice, jdbcType=VARCHAR},#{sellPriceDetail, jdbcType=VARCHAR},#{questionStatus})
+</insert>
+
+<select id="getDataCount" parameterType="int" resultType="int">
+	select nvl(count(*),0) from question where userNum=#{userNum}
+</select>
+
+<select id="adminGetDataCount" resultType="int">
+	select nvl(count(*),0) from question
+</select>
+
+<select id="getLists" parameterType="map" resultType="com.mvc.dto.QuestionDTO">
+	select * from (
+	select rownum rnum, data.* from (
+	select questionNum,userNum,questionType1,questionType2,tradeNum,brandName,questionSubject,questionContent,questionImage1,questionImage2,questionImage3,to_char(questionCreated, 'YYYY-MM-DD') questionCreated,buyRoute,buyRouteDetail,buyReason,sellPrice,sellPriceDetail,questionStatus 
+	from question order by questionNum desc) data)
+<![CDATA[
+	where rnum>=#{start} and rnum<=#{end} and userNum=#{userNum}
+]]>
+</select>
+
+<select id="adminGetLists" parameterType="map" resultType="com.mvc.dto.QuestionDTO">
+	select * from (
+	select rownum rnum, data.* from (
+	select questionNum,userNum,questionType1,questionType2,tradeNum,brandName,questionSubject,questionContent,questionImage1,questionImage2,questionImage3,to_char(questionCreated, 'YYYY-MM-DD') questionCreated,buyRoute,buyRouteDetail,buyReason,sellPrice,sellPriceDetail,questionStatus 
+	from question order by questionNum desc) data)
+<![CDATA[
+	where rnum>=#{start} and rnum<=#{end}
+]]>
+</select>
+
+
+<select id="getReadData" parameterType="int" resultType="com.mvc.dto.QuestionDTO">
+	select questionNum,userNum,questionType1,questionType2,tradeNum,brandName,questionSubject,questionContent,questionImage1,questionImage2,questionImage3,to_char(questionCreated, 'YYYY-MM-DD') questionCreated,buyRoute,buyRouteDetail,buyReason,sellPrice,sellPriceDetail,questionStatus
+	from question where questionNum=#{questionNum}
+</select>
+
+<delete id="deleteData" parameterType="int">
+	delete question where questionNum=#{questionNum}
+</delete>
+
+<update id="updateData" parameterType="com.mvc.dto.QuestionDTO" >
+	update question set questionStatus=#{questionStatus} 
+	where questionNum=#{questionNum}
+</update>
+
+<select id="getDataTodayCount" parameterType="String" resultType="int">
+	select count(*) from question where questionCreated>=#{today}
+</select>
+<select id="getDataNoAnswerCount" resultType="int">
+	select count(*) from question where questionStatus='답변대기'
+</select>
+</mapper>

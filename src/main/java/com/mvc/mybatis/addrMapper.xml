@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="kreamy.addrMapper">
+
+<select id="maxNum" resultType="int">
+	select nvl(max(addrNum),0) from address
+</select>
+
+<select id="getDataCount" parameterType="int" resultType="int">
+	select nvl(count(*),0) from address where userNum=#{userNum}
+</select>
+
+
+<insert id="insertData" parameterType="com.mvc.dto.AddrDTO">
+	insert into address(addrNum,userNum,recvName,recvPhone,postNum,addr1,addr2,addrBasic)
+	values (#{addrNum},#{userNum},#{recvName},#{recvPhone},#{postNum},#{addr1},#{addr2},#{addrBasic})
+</insert>
+
+<insert id="updateData" parameterType="com.mvc.dto.AddrDTO">
+	update address set recvName=#{recvName},recvPhone=#{recvPhone},postNum=#{postNum},addr1=#{addr1},addr2=#{addr2},addrBasic=#{addrBasic}
+	where addrNum=#{addrNum}
+</insert>
+
+<select id="getLists" resultType="com.mvc.dto.AddrDTO" parameterType="int">
+	select * from address where userNum = #{userNum} order by addrBasic desc
+</select>
+
+<select id="getOneData" resultType="com.mvc.dto.AddrDTO" parameterType="int">
+	select * from address where addrNum = #{addrNum} 
+</select>
+
+<update id="allNotBasic">
+	update address set addrBasic = 'no'
+</update>
+
+<update id="changeBasic" parameterType="int">
+	update address set addrBasic = 'yes' where addrNum=#{addrNum}
+</update>
+
+<delete id="deleteData" parameterType="int">
+	delete address where addrNum=#{addrNum}
+</delete>
+
+</mapper>

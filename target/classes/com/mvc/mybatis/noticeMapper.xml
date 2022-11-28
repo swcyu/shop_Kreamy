@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="noticeMapper">
+
+<select id="maxNum" resultType="int">
+	select nvl(max(noticeNum),0) from notice
+</select>
+
+<insert id="insertData" parameterType="com.mvc.dto.NoticeDTO">
+	insert into notice (noticeNum,noticeCategory,noticeTitle,noticeContent,noticeCreated) 
+	values (#{noticeNum},#{noticeCategory},#{noticeTitle},#{noticeContent},sysdate)
+</insert>
+
+<select id="getDataCount" resultType="int">
+	select nvl(count(*),0) from notice
+</select>
+
+<select id="getLists" parameterType="map" resultType="com.mvc.dto.NoticeDTO">
+	select * from (
+	select rownum rnum, data.* from (
+	select noticeNum,noticeCategory,noticeTitle,noticeContent,to_char(noticeCreated, 'YYYY-MM-DD') noticeCreated  
+	from notice order by noticeNum desc) data)
+<![CDATA[
+	where rnum>=#{start} and rnum<=#{end}
+]]>
+</select>
+
+<select id="getReadData" parameterType="int" resultType="com.mvc.dto.NoticeDTO">
+	select noticeNum,noticeCategory,noticeTitle,noticeContent,to_char(noticeCreated, 'YYYY-MM-DD') noticeCreated
+	from notice where noticeNum=#{noticeNum}
+</select>
+
+<delete id="deleteData" parameterType="int">
+	delete notice where noticeNum=#{noticeNum}
+</delete>
+
+<update id="updateData" parameterType="com.mvc.dto.NoticeDTO" >
+	update notice set noticeCategory=#{noticeCategory},noticeTitle=#{noticeTitle},noticeContent=#{noticeContent},noticeCreated=sysdate
+	where noticeNum=#{noticeNum}
+</update>
+
+
+</mapper>

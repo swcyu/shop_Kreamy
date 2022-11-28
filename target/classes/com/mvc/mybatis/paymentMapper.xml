@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kreamy.paymentMapper">
+<select id="maxNum" resultType="int">
+	select nvl(max(payNum),0) from payInfo
+</select>
+
+<select id="getDataCount" parameterType="int" resultType="int">
+	select nvl(count(*),0) from payInfo where userNum=#{userNum}
+</select>
+
+
+<insert id="insertData" parameterType="com.mvc.dto.PaymentDTO">
+	insert into payInfo(payNum,userNum,cardNum,validMonth,validYear,birthDate,bank,payBasic)
+	values (#{payNum},#{userNum},#{cardNum},#{validMonth},#{validYear},#{birthDate},#{bank},#{payBasic})
+</insert>
+
+<select id="getLists" resultType="com.mvc.dto.PaymentDTO" parameterType="int">
+	select * from payInfo where userNum = #{userNum} and payBasic='no' order by payNum desc
+</select>
+
+<select id="getBasicData" resultType="com.mvc.dto.PaymentDTO" parameterType="int">
+	select * from payInfo where userNum = #{userNum} and payBasic='yes'
+</select>
+
+<update id="allNotBasic">
+	update payInfo set payBasic = 'no'
+</update>
+
+<update id="changeBasic" parameterType="int">
+	update payInfo set payBasic = 'yes' where payNum=#{payNum}
+</update>
+
+<delete id="deleteData" parameterType="int">
+	delete payInfo where payNum=#{payNum}
+</delete>
+
+</mapper>

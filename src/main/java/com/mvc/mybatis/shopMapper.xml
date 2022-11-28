@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="shopMapper">
+
+
+<!-- 찜하기 표시 체크 숫자 -->
+<select id="checkNum" parameterType="map" resultType="int"> 
+	select count(*) from (select a.prodNum from prodInfo a, shopView b where a.engproduct = b.engproduct and b.engproduct = #{engProduct}) a, wish b  
+	where a.prodNum = b.productNum and a.prodNum in (select productNum from wish where userNum=#{userNum})
+</select>
+
+<select id="checkNum1" parameterType="int" resultType="int">
+	select count(*) from shopview a, wish b where a.prodNum = b.productNum and a.prodNum = #{prodNum}
+</select>
+
+<!-- ShopViewDAO -->
+
+<select id="prodImage" parameterType="map" resultType="com.mvc.dto.ShopViewDTO">	
+	
+	select * from shopView where engProduct like '%' || #{searchKey} || '%'
+	order by engProduct desc
+</select>
+
+<select id="totalProdImage" resultType="int" parameterType="map">
+	select nvl(count(*),0) from shopView where engProduct like '%' || #{searchKey} || '%'	
+</select>
+
+
+
+<select id="categorySearch1" parameterType="map" resultType="com.mvc.dto.ShopViewDTO">
+
+	select * from shopView where category like '%' || #{category} || '%'
+	and brandName like '%' || #{brandName} || '%'
+	<if test="beginPrice!=null and beginPrice !=''">
+		and shopPrice >= #{beginPrice}
+	</if>
+	<if test="endPrice!=null and endPrice !=''">
+<![CDATA[and shopPrice <= #{endPrice}]]>
+	</if>
+	<choose>
+		<when test="sorting!=null and sorting.equals('releasedate')">
+		order by releasedate desc
+		</when>
+		<when test="sorting!=null and sorting.equals('lowShopPrice')">
+		order by shopPrice asc
+		</when>
+		<when test="sorting!=null and sorting.equals('highShopPrice')">
+		order by shopPrice desc
+		</when>
+		<when test="sorting!=null and sorting.equals('popular')">
+		order by popular desc
+		</when>
+		<when test="sorting!=null and sorting.equals('brandName')">
+		order by brandName asc
+		</when>
+		<otherwise>
+		order by engProduct desc
+		</otherwise>
+	</choose>
+	
+</select>
+
+<select id="categorySearch" parameterType="map" resultType="com.mvc.dto.ShopViewDTO">
+
+	select * from shopView where category like '%' || #{category} || '%'
+	and brandName in 
+	<foreach collection="brandNames" item="brandName" open="(" close=")" separator=",">
+	#{brandName}
+	</foreach>
+	<if test="beginPrice!=null and beginPrice !=''">
+		and shopPrice >= #{beginPrice}
+	</if>
+	<if test="endPrice!=null and endPrice !=''">
+<![CDATA[and shopPrice <= #{endPrice}]]>
+	</if>
+	<choose>
+		<when test="sorting!=null and sorting.equals('releasedate')">
+		order by releasedate desc
+		</when>
+		<when test="sorting!=null and sorting.equals('lowShopPrice')">
+		order by shopPrice asc
+		</when>
+		<when test="sorting!=null and sorting.equals('highShopPrice')">
+		order by shopPrice desc
+		</when>
+		<when test="sorting!=null and sorting.equals('popular')">
+		order by popular desc
+		</when>
+		<when test="sorting!=null and sorting.equals('brandName')">
+		order by brandName asc
+		</when>
+		<otherwise>
+		order by engProduct desc
+		</otherwise>
+	</choose>
+	
+	
+</select>
+
+
+<select id="totalCategoryProdImage1" resultType="int" parameterType="map">
+	select nvl(count(*),0) from shopView where category like '%' || #{category} || '%'
+	and brandName like '%' || #{brandName} || '%'
+	<if test="beginPrice!=null and beginPrice !=''">
+		and shopPrice >= #{beginPrice}
+	</if>
+	<if test="endPrice!=null and endPrice !=''">
+<![CDATA[and shopPrice <= #{endPrice}]]>
+	</if>
+	
+</select>
+
+<select id="totalCategoryProdImage" resultType="int" parameterType="map">
+	select nvl(count(*),0) from shopView where category like '%' || #{category} || '%'
+	and brandName in 
+	<foreach collection="brandNames" item="brandName" open="(" close=")" separator=",">
+	#{brandName}
+	</foreach>
+	<if test="beginPrice!=null and beginPrice !=''">
+		and shopPrice >= #{beginPrice}
+	</if>
+	<if test="endPrice!=null and endPrice !=''">
+<![CDATA[and shopPrice <= #{endPrice}]]>
+	</if>
+
+	
+</select>
+<!-- BrandDAO -->
+
+<select id="brand" resultType="com.mvc.dto.BrandDTO">
+	select distinct brandName,brandImage from brand order by brandName asc
+</select>
+
+
+<!-- WishProductDAO -->
+
+<select id="wishProduct" resultType="com.mvc.dto.WishProductDTO" parameterType="map">
+
+select a.prodNum,a.engproduct,a.korproduct,a.usersize,b.imageName from
+prodInfo a,(select * from prodImage where imageType='list') b where a.engproduct = #{engProduct} 
+and a.engproduct = b.engproduct order by usersize asc
+
+</select>
+
+<select id="wishCheckNum" resultType="int" parameterType="map">
+	select count(*) from wish where productNum = #{productNum} and userNum = #{userNum}
+</select>
+
+
+<!-- 찜하기 db 넣기 -->
+
+<select id="maxWishNum" resultType="int">
+	select nvl(max(wishNum),0) from wish
+</select>
+
+<insert id="insertWishProduct" parameterType="map">	
+	insert into wish (userNum,wishNum,productNum) values (#{userNum},#{wishNum},#{prodNum})	
+</insert>
+
+<delete id="deleteWishProduct" parameterType="int">
+	delete wish where productNum = #{productNum}
+</delete>
+
+
+</mapper>
+
+
+
+
+
+
+

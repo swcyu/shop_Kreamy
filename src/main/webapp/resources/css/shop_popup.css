@@ -1,0 +1,30 @@
+@charset "UTF-8";
+
+/* 팝업CSS */
+
+
+button {
+  height: 2.5em;
+  cursor: pointer;
+}
+
+#sorting_list {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  z-index: 1;
+}
+
+#sorting_list.hide {
+  display: none;
+}
+
+#sorting_list .content {
+  padding: 20px;
+  background: #fff;
+  border-radius: 5px;
+  box-shadow: 10px 10px 30px #dbdbdb;
+}

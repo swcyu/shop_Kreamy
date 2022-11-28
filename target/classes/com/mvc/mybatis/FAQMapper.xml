@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="FAQMapper">
+
+<select id="maxNum" resultType="int">
+	select nvl(max(FAQNum),0) from FAQ
+</select>
+
+<insert id="insertData" parameterType="com.mvc.dto.FAQDTO">
+	insert into FAQ (FAQNum,FAQCategory,FAQTitle,FAQContent,FAQCreated) 
+	values (#{FAQNum},#{FAQCategory},#{FAQTitle},#{FAQContent},sysdate)
+</insert>
+
+<select id="getDataCount" resultType="int">
+	select nvl(count(*),0) from FAQ
+</select>
+
+<select id="getTabDataCount" parameterType="map" resultType="int">
+	select nvl(count(*),0) from FAQ where FAQCategory=#{FAQCategory}
+</select>
+
+
+<select id="getLists" parameterType="map" resultType="com.mvc.dto.FAQDTO">
+	select * from (
+	select rownum rnum, data.* from (
+	select FAQNum,FAQCategory,FAQTitle,FAQContent,to_char(FAQCreated, 'YYYY-MM-DD') FAQCreated  
+	from FAQ where 1=1
+	<if test="FAQCategory!=null and FAQCategory !=''">
+	and FAQCategory=#{FAQCategory}
+	</if>
+	order by FAQNum desc) data)
+<![CDATA[
+	where rnum>=#{start} and rnum<=#{end}
+]]>
+</select>
+
+<select id="getTabLists" parameterType="map" resultType="com.mvc.dto.FAQDTO">
+	select * from (
+	select rownum rnum, data.* from (
+	select FAQNum,FAQCategory,FAQTitle,FAQContent,to_char(FAQCreated, 'YYYY-MM-DD') FAQCreated  
+	from FAQ where FAQCategory=#{FAQCategory} order by FAQNum desc) data)
+<![CDATA[
+	where rnum>=#{start} and rnum<=#{end}
+]]>
+</select>
+
+
+<select id="getReadData" parameterType="int" resultType="com.mvc.dto.FAQDTO">
+	select FAQNum,FAQCategory,FAQTitle,FAQContent,to_char(FAQCreated, 'YYYY-MM-DD') FAQCreated
+	from FAQ where FAQNum=#{FAQNum}
+</select>
+
+<delete id="deleteData" parameterType="int">
+	delete FAQ where FAQNum=#{FAQNum}
+</delete>
+
+<update id="updateData" parameterType="com.mvc.dto.FAQDTO" >
+	update FAQ set FAQCategory=#{FAQCategory},FAQTitle=#{FAQTitle},FAQContent=#{FAQContent},FAQCreated=sysdate
+	where FAQNum=#{FAQNum}
+</update>
+
+
+</mapper>

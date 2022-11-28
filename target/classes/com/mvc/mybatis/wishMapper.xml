@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kreamy.wishMapper">
+<select id="getLists" parameterType="int" resultType="com.mvc.dto.WishDTO">
+	select prodNum productNum, c.*,userSize, d.brandName, d.engProduct, brandimage, imageName from
+	(select a.*, nvl(minBidSellWishPrice,-1) minBidSellWishPrice from (select * from wish where userNum=#{userNum}) a,
+	(select productnum, min(bidSellWishPrice) minBidSellWishPrice from bidsellinfo where bidsellValidDate>=sysdate group by productnum) b
+	where a.productnum=b.productnum(+)) c, prodinfo d,brand e,(select * from prodimage where imagetype='list') f 
+	where c.productnum=d.prodnum and d.brandname=e.brandname and d.engProduct=f.engProduct order by wishNum desc
+
+</select>
+
+<delete id="deleteData" parameterType="int">
+	delete wish where wishNum=#{wishNum}
+</delete>
+
+</mapper>

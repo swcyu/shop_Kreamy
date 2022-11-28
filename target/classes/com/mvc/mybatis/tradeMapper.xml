@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kreamy.tradeMapper">
+
+<select id="getBuyLists" parameterType="map" resultType="com.mvc.dto.TradeDTO">
+	select prodNum productNum, tradeNum, imageName, a.engProduct, userSize, tradeBuyState,tradeDate from prodinfo a, (select * from prodimage where imagetype='list') b,
+	(select tradeNum, productNum, tradeBuyState,to_char(tradeDate,'yy/mm/dd') tradeDate from tradeInfo where 
+	<if test="mode=='trade'">tradeState='진행 중' and</if>
+	<if test="mode=='end'">tradeState='종료' and</if>
+	buyUserNum=#{userNum} ) c where a.prodNum=c.productNum and a.engProduct=b.engProduct
+</select>
+
+<select id="getFilterBuyLists" parameterType="map" resultType="com.mvc.dto.TradeDTO">
+	select prodNum productNum, tradeNum, imageName, a.engProduct, userSize, tradeBuyState,tradeDate from prodinfo a, (select * from prodimage where imagetype='list') b,
+	(select tradeNum, productNum, tradeBuyState,to_char(tradeDate,'yy/mm/dd') tradeDate from tradeInfo where 
+	<if test="mode=='trade'">tradeState='진행 중' and</if>
+	<if test="mode=='end'">tradeState='종료' and</if>
+	buyUserNum=#{userNum}
+<![CDATA[
+	and tradeDate>=#{startDate} and tradeDate-1<=#{endDate}
+]]>	
+	) c where a.prodNum=c.productNum and a.engProduct=b.engProduct
+	<if test="state=='wait'">and tradeBuyState='대기 중'</if>
+	<if test="state=='send_ok'">and tradeBuyState='발송완료'</if>
+	<if test="state=='receiving_wait'">and tradeBuyState='입고대기'</if>
+	<if test="state=='receiving_ok'">and tradeBuyState='입고완료'</if>
+	<if test="state=='inspection'">and tradeBuyState='검수 중'</if>
+	<if test="state=='inspection_hold'">and tradeBuyState='검수보류'</if>
+	<if test="state=='inspection_ok'">and tradeBuyState='검수합격'</if>
+	<if test="state=='delivery'">and tradeBuyState='배송 중'</if>
+	<if test="state=='trade_fail'">and tradeBuyState='거래실패'</if>
+	<if test="state=='delivery_ok'">and tradeBuyState='배송완료'</if>
+	<if test="state=='cancel'">and tradeBuyState='취소완료'</if>
+	<if test="sort=='tradeStateAsc' or sort=='endStateAsc'">order by tradeBuyState asc</if>
+	<if test="sort=='tradeStateDesc' or sort=='endStateDesc'">order by tradeBuyState desc</if>
+	<if test="sort=='tradeDateAsc'">order by tradeDate asc</if>
+	<if test="sort=='tradeDateDesc'">order by tradeDate desc</if>
+</select>
+<select id="getSellLists" parameterType="map" resultType="com.mvc.dto.TradeDTO">
+	select prodNum productNum, tradeNum, imageName, a.engProduct, userSize, tradeSellState,tradeDate from prodinfo a, (select * from prodimage where imagetype='list') b,
+	(select tradeNum, productNum, tradeSellState,to_char(tradeDate,'yy/mm/dd') tradeDate from tradeInfo where 
+	<if test="mode=='trade'">tradeState='진행 중' and</if>
+	<if test="mode=='end'">tradeState='종료' and</if>
+	sellUserNum=#{userNum} ) c where a.prodNum=c.productNum and a.engProduct=b.engProduct
+</select>
+
+<select id="getFilterSellLists" parameterType="map" resultType="com.mvc.dto.TradeDTO">
+	select prodNum productNum, tradeNum, imageName, a.engProduct, userSize, tradeSellState,tradeDate from prodinfo a, (select * from prodimage where imagetype='list') b,
+	(select tradeNum, productNum, tradeSellState,to_char(tradeDate,'yy/mm/dd') tradeDate from tradeInfo where 
+	<if test="mode=='trade'">tradeState='진행 중' and</if>
+	<if test="mode=='end'">tradeState='종료' and</if>
+	sellUserNum=#{userNum}
+<![CDATA[
+	and tradeDate>=#{startDate} and tradeDate-1<=#{endDate}
+]]>	
+	) c where a.prodNum=c.productNum and a.engProduct=b.engProduct
+	<if test="state=='wait'">and tradeSellState='대기 중'</if>
+	<if test="state=='send_ok'">and tradeSellState='발송완료'</if>
+	<if test="state=='receiving_wait'">and tradeSellState='입고대기'</if>
+	<if test="state=='receiving_ok'">and tradeSellState='입고완료'</if>
+	<if test="state=='inspection'">and tradeSellState='검수 중'</if>
+	<if test="state=='inspection_hold'">and tradeSellState='검수보류'</if>
+	<if test="state=='inspection_ok'">and tradeSellState='검수합격'</if>
+	<if test="state=='delivery'">and tradeSellState='배송 중'</if>
+	<if test="state=='trade_fail'">and tradeSellState='거래실패'</if>
+	<if test="state=='calculate_ok'">and tradeSellState='정산완료'</if>
+	<if test="state=='cancel'">and tradeSellState='취소완료'</if>
+	<if test="sort=='tradeStateAsc' or sort=='endStateAsc'">order by tradeSellState asc</if>
+	<if test="sort=='tradeStateDesc' or sort=='endStateDesc'">order by tradeSellState desc</if>
+	<if test="sort=='tradeDateAsc'">order by tradeDate asc</if>
+	<if test="sort=='tradeDateDesc'">order by tradeDate desc</if>
+</select>
+
+<select id="getOneBuyData" parameterType="int" resultType="com.mvc.dto.TradeDTO">
+	select prodNum productNum, tradeNum, a.productNum, buyUserNum, tradePrice, tradeDate, tradeBuyState, buyAddrNum, imageName, 
+	nvl(maxBidBuyPrice,-1) maxBidBuyPrice, nvl(minBidSellPrice,-1) minBidSellPrice, userSize, b.engProduct, condition,
+	nvl(styleNum,'-') styleNum from (select tradeNum, productNum, buyUserNum, tradePrice, to_char(tradeDate,'yy/mm/dd') tradeDate, 
+	tradeBuyState, buyAddrNum from tradeInfo where tradeNum=#{tradeNum}) a ,prodInfo b,(select * from prodImage where imagetype='list') c,
+	(select productNum ,nvl(max(bidBuyWishPrice),-1) maxBidBuyPrice from bidBuyInfo group by productNum) d,
+	(select productNum ,nvl(min(bidSellWishPrice),-1) minBidSellPrice from bidSellInfo group by productNum) e
+	where a.productNum=b.prodNum and b.engProduct=c.engProduct(+) and a.productNum=d.productNum(+) and a.productNum=e.productNum(+)
+</select>
+
+<select id="getOneSellData" parameterType="int" resultType="com.mvc.dto.TradeDTO">
+	select prodNum productNum, tradeNum, a.productNum, sellUserNum, tradePrice, tradeDate, tradeSellState, sellAddrNum, imageName, 
+	nvl(maxBidBuyPrice,-1) maxBidBuyPrice, nvl(minBidSellPrice,-1) minBidSellPrice, userSize, b.engProduct, condition,
+	nvl(styleNum,'-') styleNum from (select tradeNum, productNum, sellUserNum, tradePrice, to_char(tradeDate,'yy/mm/dd') tradeDate, 
+	tradeSellState, sellAddrNum from tradeInfo where tradeNum=#{tradeNum}) a ,prodInfo b,(select * from prodImage where imagetype='list') c,
+	(select productNum ,nvl(max(bidBuyWishPrice),-1) maxBidBuyPrice from bidBuyInfo group by productNum) d,
+	(select productNum ,nvl(min(bidSellWishPrice),-1) minBidSellPrice from bidSellInfo group by productNum) e
+	where a.productNum=b.prodNum and b.engProduct=c.engProduct(+) and a.productNum=d.productNum(+) and a.productNum=e.productNum(+)
+</select>
+
+<update id="updateData" parameterType="map">
+	update tradeInfo set 
+	<if test="mode=='buy'">tradeBuyState</if>
+	<if test="mode=='sell'">tradeSellState</if>
+	<if test="mode=='buyEnd'">tradeState='종료', tradeBuyState</if>
+	<if test="mode=='sellEnd'">tradeState='종료', tradeSellState</if>
+	= #{state} where tradeNum=#{tradeNum}
+</update>
+
+<select id="getSellTradeNum" parameterType="int" resultType="com.mvc.dto.TradeDTO">
+	select tradeNum from tradeInfo where sellUserNum=#{userNum}
+</select>
+
+<select id="getBuyTradeNum" parameterType="int" resultType="com.mvc.dto.TradeDTO">
+	select tradeNum from tradeInfo where buyUserNum=#{userNum}
+</select>
+
+<delete id="deleteData" parameterType="int">
+	delete tradeInfo where tradeNum=#{tradeNum}
+</delete>
+
+<select id="getDataCount" parameterType="String" resultType="int">
+	select count(*) from tradeInfo where tradeDate>=#{today}
+</select>
+</mapper>

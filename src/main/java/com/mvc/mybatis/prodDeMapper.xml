@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.prodDeMapper">
+
+<select id="getProdInfo" parameterType="int" resultType="com.mvc.dto.ProdInfoDTO">
+	select * from prodInfo where prodNum = #{prodNum}
+</select>
+
+<select id="getProdInfo2" parameterType="hashmap" resultType="com.mvc.dto.ProdInfoDTO">
+	select * from prodInfo where engProduct = #{engProduct} and userSize = #{prodSize}
+</select>
+
+<select id="getSizeByEngProduct" parameterType="String" resultType="String">
+	select userSize from prodInfo where engProduct = #{engProduct}
+</select>
+
+<select id="getSizeWish" parameterType="hashmap" resultType="com.mvc.dto.WishSizeDTO">
+	select userSize prodSize, userNum from prodInfo a , 
+	(select * from wish where userNum = #{userNum}) b where prodNum=productNum(+) 
+	and engProduct = #{engProduct} order by prodNum
+</select>
+<select id="countUserWish" parameterType="hashmap" resultType="int">
+	select count(userNum) from prodInfo a,
+	(select * from wish where userNum = #{userNum}) b 
+	where prodNum=productNum and engProduct = #{engProduct}
+</select>
+
+<select id="getTotalImage" parameterType="String" resultType="String">
+	select imageName from prodImage where engProduct = #{engProduct} order by imageNum
+</select>
+
+<delete id="deleteWish" parameterType="hashmap">
+	delete wish where userNum=#{userNum} and 
+	proDuctNum=(select prodNum from prodInfo a, wish b 
+	where a.prodNum=b.productNum 
+	and userSize=#{prodSize} and engProduct=#{engProduct})
+</delete>
+
+<insert id="insertWish">
+insert into wish(wishNum,userNum,productNum) values((select nvl(max(wishNum),0) from wish)+1,
+#{userNum},(select prodNum from prodInfo where userSize=#{prodSize}
+and engProduct=#{engProduct}))
+</insert>
+
+
+<select id="getRepImage" parameterType="String" resultType="String">
+	select imageName from prodImage where engProduct = #{engProduct} and imageType='list'
+</select>
+
+<select id="getImmeBuyPrice" parameterType="hashmap" resultType="integer">
+	select min(b.bidSellWishPrice) from prodInfo a, bidSellInfo b where a.prodNum=b.productNum and
+	a.userSize = #{prodSize} and engProduct=#{engProduct} and bidSellValidDate>sysdate group by a.userSize
+</select>
+
+<select id="getImmeSellPrice" parameterType="hashmap" resultType="integer">
+	select max(b.bidBuyWishPrice) from prodInfo a, bidBuyInfo b where a.prodNum=b.productNum and
+	a.userSize = #{prodSize} and engProduct=#{engProduct} and bidBuyValidDate>sysdate group by a.userSize
+</select>
+
+<select id="getRecentTradePrice" parameterType="hashmap" resultType="integer">
+	select tradePrice from (
+	select rowNum rNum,data.tradeprice from (
+	select tradePrice from tradeInfo ti,prodInfo pi 
+	where pi.prodNum = ti.productNum and userSize = #{prodSize} and engProduct=#{engProduct}
+	order by tradeDate desc) data) where rNum = 1
+</select>
+
+<select id="getRecent2TradePrice" parameterType="hashmap" resultType="integer">
+	select tradePrice from (
+	select rowNum rNum,data.tradeprice from (
+	select tradePrice from tradeInfo ti,prodInfo pi 
+	where pi.prodNum = ti.productNum and userSize = #{prodSize} and engProduct=#{engProduct}
+	order by tradeDate desc) data) where rnum = 2
+</select>
+
+<select id="getTotImmeBuyPrice" parameterType="String" resultType="integer">
+	select min(b.bidSellWishPrice) from prodInfo a, bidSellInfo b 
+	where a.prodNum=b.productNum and a.engProduct = #{engProduct} and bidSellValidDate>sysdate
+</select>
+
+<select id="getTotImmeSellPrice" parameterType="String" resultType="integer">
+	select max(b.bidBuyWishPrice) from prodInfo a, bidBuyInfo b
+	where a.prodNum=b.productNum and a.engProduct = #{engProduct} and bidBuyValidDate>sysdate
+</select>
+
+<select id="getRecentPriceSize" parameterType="String" resultType="String">
+select userSize from (
+select rowNum rnum,data.userSize from(
+select b.tradedate,a.userSize from prodInfo a, tradeInfo b 
+where a.prodNum=b.productNum and a.engProduct=#{engProduct} 
+order by b.tradedate desc) data) where rnum=1
+</select>
+
+<select id="getTrade" parameterType="hashmap" resultType="com.mvc.dto.TISizeDTO">
+select a.userSize prodSize, b.tradePrice,TO_CHAR(b.tradeDate,'YY/MM/DD') tradeDate from prodInfo a, tradeInfo b 
+where engProduct = #{engProduct} and a.prodNum=b.productNum
+<if test="tot!='tot'">and a.userSize=#{prodSize}</if>
+<if test="ob=='tradeDate'"> order by tradeDate </if> 
+<if test="ob=='price'"> order by tradePrice </if> 
+<if test="ob=='size'"> order by prodSize </if> 
+<if test="sort=='desc'">desc</if>
+</select>
+
+<select id="getBidBuy" parameterType="hashmap" resultType="com.mvc.dto.BidDTO">
+select a.userSize prodSize, b.bidBuyWishPrice price, count(b.bidBuyWishPrice) quantity
+from prodInfo a,bidBuyInfo b where a.prodNum=b.productNum and a.engProduct = #{engProduct} and bidBuyValidDate>sysdate
+<if test="tot!='tot'"> and a.userSize = #{prodSize} </if>
+group by prodNum,a.userSize, b.bidBuyWishPrice
+<if test="ob=='price'">order by b.bidBuyWishPrice</if>
+<if test="ob=='size'">order by prodNum </if> 
+<if test="sort=='desc'">desc</if>
+</select>
+
+<select id="getBidSell" parameterType="hashmap" resultType="com.mvc.dto.BidDTO">
+select a.userSize prodSize, b.bidSellWishPrice price, count(b.bidSellWishPrice) quantity
+from prodInfo a,bidSellInfo b where a.prodNum=b.productNum and a.engProduct = #{engProduct} and bidSellValidDate>sysdate
+<if test="tot!='tot'"> and a.userSize = #{prodSize} </if>
+group by prodNum,a.userSize, b.bidSellWishPrice
+<if test="ob=='price'"> order by b.bidSellWishPrice</if>
+<if test="ob=='size'"> order by prodNum </if> 
+<if test="sort=='desc'">desc</if>
+</select>
+
+
+<select id="addrMaxNum" resultType="int">
+	select nvl(max(addrNum),0) from address
+</select>
+<insert id="insertAddress" parameterType="com.mvc.dto.AddressDTO">
+	insert into address(addrNum,userNum,recvName,recvPhone,postNum,
+	addr1,addr2,addrBasic) values (#{addrNum},#{userNum},#{recvName},
+	#{recvPhone},#{postNum},#{addr1},#{addr2},#{addrBasic})
+</insert>
+<select id="myAddress" parameterType="int" resultType="com.mvc.dto.AddressDTO">
+	select * from address where userNum = #{userNum} order by addrBasic desc,addrNum
+</select>
+<update id="updateFAddrB" parameterType="int">
+	update address set addrBasic='no' where userNum=#{userNum}
+</update>
+
+<insert id="insertCard" parameterType="com.mvc.dto.PayInfoDTO">
+insert into payInfo(payNum,userNum,bank,cardNum,validMonth,validYear,birthDate,payBasic)
+values ((select nvl(max(payNum),0) from payInfo)+1,#{userNum},#{bank},#{cardNum},
+#{validMonth},#{validYear},#{birthDate},#{payBasic})
+</insert>
+<select id="myCard" parameterType="int" resultType="com.mvc.dto.PayInfoDTO">
+	select * from payInfo where userNum = #{userNum} order by payBasic desc,payNum
+</select>
+<select id="getProdNum" parameterType="map" resultType="int">
+	select prodNum from prodInfo where engProduct like '%' || #{engProduct} || '%' and rownum=1
+</select>
+<select id="getProdInfoByNum" parameterType="int" resultType="com.mvc.dto.ProdInfoDTO">
+	select * from prodInfo where prodNum = #{prodNum}
+</select>
+
+<select id="getAccount" parameterType="int" resultType="com.mvc.dto.UserInfoDTO">
+	select bank,account,holder from userInfo where userNum=#{userNum}
+</select>
+<update id="updateBank" parameterType="hashmap">
+	update userInfo set bank=#{bank},account=#{account},holder=#{holder} where userNum = #{userNum}
+</update>
+
+<select id="getAddrNum" parameterType="hashmap" resultType="int">
+select addrNum from (select rownum rnum,addrNum 
+from address where userNum=#{userNum} and recvName=#{recvName} 
+and recvPhone=#{recvPhone} and postNum=#{postNum}) where rnum=1
+</select>
+
+<insert id="insertBidBuy" parameterType="com.mvc.dto.BidBuyInfoDTO">
+	insert into bidBuyInfo (bidBuyNum,userNum,productNum,bidBuyWishPrice,bidBuyDate,bidBuyValidDate,addrNum,totPayment)
+	values ((select nvl(max(bidBuyNum),0) from bidBuyInfo)+1,#{userNum},#{productNum},#{bidBuyWishPrice},
+	sysDate,sysDate+#{vd},#{addrNum},#{totPayment})
+</insert>
+<select id="getBidBuyNum" parameterType="int" resultType="int">
+	select nvl(max(bidBuyNum),0) from bidBuyInfo where userNum = #{userNum}
+</select>
+<insert id="insertBidSell" parameterType="com.mvc.dto.BidSellInfoDTO">
+	insert into bidSellInfo (bidSellNum,userNum,productNum,bidSellWishPrice,bidSellDate,bidSellValidDate,addrNum)
+	values ((select nvl(max(bidSellNum),0) from bidSellInfo)+1,#{userNum},#{productNum},#{bidSellWishPrice},
+	sysDate,sysDate+#{vd},#{addrNum})
+</insert>
+<select id="getBidSellNum" parameterType="int" resultType="int">
+	select nvl(max(bidSellNum),0) from bidSellInfo where userNum = #{userNum}
+</select>
+
+<select id="getTradeNumB" parameterType="int" resultType="int">
+	select nvl(max(tradeNum),0) from tradeInfo where buyUserNum = #{userNum}
+</select>
+<select id="getTradeNumS" parameterType="int" resultType="int">
+	select nvl(max(tradeNum),0) from tradeInfo where sellUserNum = #{userNum}
+</select>
+
+<insert id="insertTradeInfo" parameterType="com.mvc.dto.TradeInfoDTO">
+	insert into tradeInfo (tradeNum,productNum,sellUserNum,buyUserNum,tradePrice,
+	tradeDate,tradeState,tradeBuyState,tradeSellState,buyAddrNum,sellAddrNum) values
+	((select nvl(max(tradeNum),0) from tradeInfo)+1,#{productNum},#{sellUserNum},
+	#{buyUserNum},#{tradePrice},sysdate,'진행 중','대기 중','발송요청',#{buyAddrNum},#{sellAddrNum})
+</insert>
+
+
+<select id="getISellIf" parameterType="int" resultType="com.mvc.dto.BidSellInfoDTO">
+	select * from (
+	select rownum rnum, data.* from (
+	select * from bidSellInfo where productNum=#{productNum} and bidSellValidDate>sysdate
+	order by bidSellwishPrice , bidSelldate, bidsellNum) data) where rnum =1
+</select>
+<select id="getIBuyIf" parameterType="int" resultType="com.mvc.dto.BidBuyInfoDTO">
+	select * from (
+	select rownum rnum, data.* from(
+	select * from bidBuyInfo where productNum=#{productNum} and bidBuyValidDate>sysdate
+	order by bidBuywishPrice desc, bidBuydate, bidBuyNum) data) where rnum=1
+</select>
+
+<delete id="deleteSellTE" parameterType="int">
+	delete bidSellInfo where bidSellNum = #{num}
+</delete>
+<delete id="deleteBuyTE">
+	delete bidBuyInfo where bidBuyNum = #{num}
+</delete>
+
+
+
+</mapper>

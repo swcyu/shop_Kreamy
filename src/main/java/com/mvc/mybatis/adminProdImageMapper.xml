@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kreamy.adminProdImageMapper">
+
+<select id="maxNum" resultType="int">
+	select nvl(max(imageNum),0) from prodImage
+</select>
+
+<insert id="insertData" parameterType="com.mvc.dto.AdminProdInfoDTO">
+	insert into prodImage (imageNum,engProduct,imageName,imageType) 
+	values (#{imageNum},#{engProduct},#{imageName},#{imageType})
+</insert>
+
+<delete id="deleteData" parameterType="String">
+	delete prodImage where engProduct=#{engProduct}
+</delete>
+</mapper>
+
