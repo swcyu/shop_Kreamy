@@ -30,7 +30,7 @@
 
 ---
 
-<img width="821" alt="ppt_2" src="https://user-images.githubusercontent.com/84915765/204211464-a5d4322a-b447-4dfb-ad95-9f67957b48e4.png" style="align: "center";">
+<img width="821" alt="ppt_2" src="https://user-images.githubusercontent.com/84915765/204211464-a5d4322a-b447-4dfb-ad95-9f67957b48e4.png">
 <KREAMY 소개>
 
 ![샵메인](https://user-images.githubusercontent.com/84915765/204211690-2a381796-c861-461e-b5b0-b13234a82964.png)
